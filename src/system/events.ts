@@ -12,6 +12,7 @@ type EventMap = {
   "search:executed": { query: string };
   "focus:changed": { paneId: string | null };
   "theme:changed": { theme: string };
+  "preview:toggle": {};
 };
 
 type EventCallback<T> = (data: T) => void;

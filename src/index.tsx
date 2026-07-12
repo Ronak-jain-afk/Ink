@@ -49,6 +49,12 @@ async function main() {
 
   bus.on("tab:opened", saveCurrentSession);
   bus.on("tab:closed", saveCurrentSession);
+
+  renderer.keyInput.on("keypress", (event) => {
+    if (event.ctrl && event.shift && event.name === "p") {
+      bus.emit("preview:toggle", {});
+    }
+  });
 }
 
 main().catch((err) => {

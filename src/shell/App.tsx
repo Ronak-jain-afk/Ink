@@ -6,6 +6,8 @@ import { getWordStats } from "../modules/workspace/word-stats";
 import { getBreadcrumbs } from "../modules/workspace/breadcrumbs";
 import { detectFrontmatter } from "../modules/workspace/frontmatter";
 import { getSplitState, initSplit, type Pane } from "../modules/workspace/split";
+import { parseMarkdown } from "../modules/preview/parser";
+import { renderPreview } from "../modules/preview/renderer";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -44,6 +46,7 @@ function PaneEditor({ tabGroupId }: { tabGroupId: string }) {
 export function App() {
   const [rev, setRev] = useState(0);
   const [editorText, setEditorText] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
   const tabs = getTabs();
   const activeTab = getActiveTab();
   const hasEditor = tabs.length > 0;
@@ -62,11 +65,13 @@ export function App() {
       bus.on("tab:closed", () => setRev(n => n + 1)),
       bus.on("workspace:opened", () => setRev(n => n + 1)),
       bus.on("session:restored", () => setRev(n => n + 1)),
+      bus.on("preview:toggle", () => setShowPreview(p => !p)),
     ];
     return () => unsubs.forEach(fn => fn());
   }, []);
 
   const rootPane = splitState.root;
+  const previewContent = editorText && showPreview ? renderPreview(parseMarkdown(editorText)) : null;
 
   return (
     <box width="100%" height="100%" flexDirection="row">
@@ -93,15 +98,22 @@ export function App() {
         {hasEditor && rootPane && hasSplits(rootPane) ? (
           renderSplitPanes(rootPane)
         ) : hasEditor ? (
-          <textarea
-            flexGrow={1}
-            initialValue={editorText}
-            wrapMode="char"
-            ref={(el: any) => { editorRef = el; }}
-            onContentChange={() => {
-              if (editorRef?.getText) setEditorText(editorRef.getText());
-            }}
-          />
+          <box flexGrow={1} flexDirection="row">
+            <textarea
+              flexGrow={1}
+              initialValue={editorText}
+              wrapMode="char"
+              ref={(el: any) => { editorRef = el; }}
+              onContentChange={() => {
+                if (editorRef?.getText) setEditorText(editorRef.getText());
+              }}
+            />
+            {previewContent && (
+              <box width="50%" flexDirection="column" paddingLeft={1}>
+                <text content={previewContent} />
+              </box>
+            )}
+          </box>
         ) : (
           <box flexGrow={1} flexDirection="column" alignItems="center" justifyContent="center">
             <text content={" Ink — Markdown Workspace\n\n Open a folder to get started.\n Press Ctrl+P to open the command palette."} />
@@ -109,7 +121,7 @@ export function App() {
         )}
 
         <box height={1} width="100%" flexDirection="row">
-          <text content={" NORMAL "} />
+          <text content={` ${showPreview ? "PREVIEW" : "NORMAL"} `} />
           <box flexGrow={1} />
           {stats && (
             <text content={` ${stats.words}w ${stats.chars}c ${stats.readingTime}m `} />
