@@ -2,6 +2,7 @@ import { readdir, stat } from "node:fs/promises";
 import { join, relative, basename } from "node:path";
 import { bus } from "../../system/events";
 import { loadSettings } from "./settings";
+import { addRoot, removeRoot, clearRoots } from "./multiroot";
 
 export interface FileNode {
   name: string;
@@ -48,11 +49,20 @@ async function buildTree(dirPath: string, showHidden: boolean): Promise<FileNode
   return { name, path: dirPath, isDirectory: true, children, expanded: true };
 }
 
-export async function openWorkspace(folderPath: string): Promise<void> {
-  state.rootPath = folderPath;
+export async function openWorkspace(folderPath: string, append = false): Promise<void> {
   const settings = loadSettings(folderPath);
-  state.showHidden = settings.showHidden ?? false;
-  state.tree = await buildTree(folderPath, state.showHidden);
+  const showHidden = settings.showHidden ?? false;
+  const tree = await buildTree(folderPath, showHidden);
+
+  if (!append || !state.rootPath) {
+    clearRoots();
+    state.rootPath = folderPath;
+    state.showHidden = showHidden;
+    state.tree = tree;
+  } else {
+    addRoot(folderPath, tree);
+  }
+
   bus.emit("workspace:opened", { rootPath: folderPath });
 }
 

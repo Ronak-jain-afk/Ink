@@ -34,12 +34,21 @@ function TreeNode({ node, depth }: TreeNodeProps) {
 
 export function FileExplorer({ rev }: { rev: number }) {
   const ws = getWorkspaceState();
+  const multi = getMultiRoots();
+
+  const allTrees: { name: string; children: FileNode[] | undefined }[] = multi.roots.length > 0
+    ? [{ name: ws.rootPath ?? "(root)", children: ws.tree?.children }, ...multi.roots.map((r, i) => ({ name: r, children: multi.trees[i]?.children }))]
+    : [];
 
   return (
     <box width={30} flexDirection="column" paddingLeft={1}>
       <text content={" EXPLORER"} />
       {!ws.rootPath || !ws.tree ? (
         <RecentList />
+      ) : multi.roots.length > 0 ? (
+        allTrees.map(t => (
+          <TreeNode key={t.name} node={{ name: t.name, path: t.name, isDirectory: true, children: t.children, expanded: true }} depth={0} />
+        ))
       ) : (
         ws.tree.children?.map(child => (
           <TreeNode key={child.path} node={child} depth={0} />
@@ -48,6 +57,8 @@ export function FileExplorer({ rev }: { rev: number }) {
     </box>
   );
 }
+
+import { getMultiRoots } from "../modules/workspace/multiroot";
 
 function RecentList() {
   const recents = getRecentProjects();
