@@ -24,6 +24,8 @@ import { startGitPolling } from "./modules/git/watch";
 import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review";
 import { registerDefaultCommands, listSlashCommands, executeSlashCommand, convertToTable } from "./modules/ai/slash";
 import { rewriteSelection, summarizeSelection, explainSelection, translateSelection } from "./modules/ai/selection-actions";
+import { switchProvider, getProviderType } from "./modules/ai/store";
+import { listAvailableModels, setModel, getCurrentModel } from "./modules/ai/model-store";
 import { registerSettingsActions } from "./modules/settings/ui";
 import { initDefaultBindings } from "./modules/keybindings/store";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
@@ -253,6 +255,33 @@ function registerCoreActions(): void {
 
   registerAction({ id: "ai.cancel", label: "Cancel AI Request", category: "AI", execute: () => cancelCurrentRequest() });
     registerAction({
+    id: "ai.provider.openai",
+    label: "Switch Provider: OpenAI",
+    category: "AI",
+    execute: () => switchProvider("openai", process.env.OPENAI_API_KEY),
+  });
+  registerAction({
+    id: "ai.provider.anthropic",
+    label: "Switch Provider: Anthropic",
+    category: "AI",
+    execute: () => switchProvider("anthropic", process.env.ANTHROPIC_API_KEY),
+  });
+  registerAction({
+    id: "ai.provider.ollama",
+    label: "Switch Provider: Ollama (local)",
+    category: "AI",
+    execute: () => switchProvider("ollama"),
+  });
+  registerAction({
+    id: "ai.models",
+    label: "List Available Models",
+    category: "AI",
+    execute: async () => {
+      const models = await listAvailableModels();
+      console.log(models.join("\n"));
+    },
+  });
+  registerAction({
     id: "ai.table",
     label: "Convert to Table",
     category: "AI",
