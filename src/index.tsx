@@ -20,6 +20,7 @@ import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review"
 import { registerDefaultCommands, listSlashCommands, executeSlashCommand } from "./modules/ai/slash";
 import { rewriteSelection, summarizeSelection, explainSelection, translateSelection } from "./modules/ai/selection-actions";
 import { registerSettingsActions } from "./modules/settings/ui";
+import { initDefaultBindings } from "./modules/keybindings/store";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
 import { setMode, type WorkspaceMode } from "./modules/modes/store";
 import { exportHTML, exportPreview, exportMarkdown } from "./modules/export/store";
@@ -114,6 +115,7 @@ function registerCoreActions(): void {
   });
   registerDefaultCommands();
   registerSettingsActions();
+  initDefaultBindings();
 
   const modes: WorkspaceMode[] = ["normal", "writing", "review", "git", "ai", "presentation", "distraction-free"];
   for (const m of modes) {
