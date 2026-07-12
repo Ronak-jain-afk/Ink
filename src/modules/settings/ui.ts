@@ -1,24 +1,31 @@
 import { registerAction } from "../palette/store";
-import { getWorkspaceState } from "../workspace/workspace-store";
-import { loadSettings, saveSettings } from "../workspace/settings";
-import { bus } from "../../system/events";
+import { getSettingsList } from "./panel";
 
 export function registerSettingsActions(): void {
-  const toggle = (key: "showHidden" | "wordWrap", label: string) => {
-    registerAction({
-      id: `settings.toggle.${key}`,
-      label: `Toggle ${label}`,
-      category: "Settings",
-      execute: () => {
-        const ws = getWorkspaceState();
-        if (!ws.rootPath) return;
-        const settings = loadSettings(ws.rootPath);
-        saveSettings(ws.rootPath, { ...settings, [key]: !settings[key] });
-        bus.emit("git:status-changed", {});
-      },
-    });
-  };
-
-  toggle("showHidden", "Show Hidden Files");
-  toggle("wordWrap", "Word Wrap");
+  for (const item of getSettingsList()) {
+    if (item.type === "toggle") {
+      registerAction({
+        id: `settings.toggle.${item.id}`,
+        label: `Toggle ${item.label}`,
+        category: `Settings: ${item.category}`,
+        execute: () => item.set(!item.value()),
+      });
+    } else if (item.type === "number") {
+      registerAction({
+        id: `settings.set.${item.id}`,
+        label: `Set ${item.label}`,
+        category: `Settings: ${item.category}`,
+        execute: () => item.set(item.value()), // ponytail: interactive number input deferred
+      });
+    } else if (item.type === "select") {
+      for (const opt of item.options ?? []) {
+        registerAction({
+          id: `settings.${item.id}.${opt}`,
+          label: `Mode: ${opt}`,
+          category: "Settings: Workspace",
+          execute: () => item.set(opt),
+        });
+      }
+    }
+  }
 }
