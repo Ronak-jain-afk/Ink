@@ -10,6 +10,7 @@ import { parseMarkdown } from "../modules/preview/parser";
 import { renderPreview } from "../modules/preview/renderer";
 import { getTheme } from "../modules/themes/store";
 import { PaletteOverlay } from "../components/PaletteOverlay";
+import { OutlinePanel } from "../components/OutlinePanel";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -81,7 +82,12 @@ export function App() {
 
   return (
     <box width="100%" height="100%" flexDirection="row" backgroundColor={theme.bg}>
-      <FileExplorer rev={rev} />
+      <box width={30} flexDirection="column">
+        <FileExplorer rev={rev} />
+        {editorText && (
+          <OutlinePanel editorText={editorText} />
+        )}
+      </box>
       <box flexGrow={1} flexDirection="column">
         <box height={1} width="100%" flexDirection="row">
           {tabs.length === 0 ? (

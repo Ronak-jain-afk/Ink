@@ -41,7 +41,7 @@ export function FileExplorer({ rev }: { rev: number }) {
     : [];
 
   return (
-    <box width={30} flexDirection="column" paddingLeft={1}>
+    <box flexDirection="column" paddingLeft={1}>
       <text content={" EXPLORER"} />
       {!ws.rootPath || !ws.tree ? (
         <RecentList />
