@@ -19,6 +19,7 @@ import { startGitPolling } from "./modules/git/watch";
 import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review";
 import { registerDefaultCommands, listSlashCommands, executeSlashCommand } from "./modules/ai/slash";
 import { rewriteSelection, summarizeSelection, explainSelection, translateSelection } from "./modules/ai/selection-actions";
+import { registerSettingsActions } from "./modules/settings/ui";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
 import { setMode, type WorkspaceMode } from "./modules/modes/store";
 import { exportHTML } from "./modules/export/store";
@@ -112,6 +113,7 @@ function registerCoreActions(): void {
     execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPush(ws.rootPath); },
   });
   registerDefaultCommands();
+  registerSettingsActions();
 
   const modes: WorkspaceMode[] = ["normal", "writing", "review", "git", "ai", "presentation", "distraction-free"];
   for (const m of modes) {
