@@ -22,7 +22,7 @@ import { fetch as gitFetch, pull as gitPull, push as gitPush } from "./modules/g
 import { getLog } from "./modules/git/log";
 import { startGitPolling } from "./modules/git/watch";
 import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review";
-import { registerDefaultCommands, listSlashCommands, executeSlashCommand } from "./modules/ai/slash";
+import { registerDefaultCommands, listSlashCommands, executeSlashCommand, convertToTable } from "./modules/ai/slash";
 import { rewriteSelection, summarizeSelection, explainSelection, translateSelection } from "./modules/ai/selection-actions";
 import { registerSettingsActions } from "./modules/settings/ui";
 import { initDefaultBindings } from "./modules/keybindings/store";
@@ -252,7 +252,17 @@ function registerCoreActions(): void {
   });
 
   registerAction({ id: "ai.cancel", label: "Cancel AI Request", category: "AI", execute: () => cancelCurrentRequest() });
-  registerAction({ id: "ai.rewrite", label: "Rewrite Selection", category: "AI", execute: () => rewriteSelection() });
+    registerAction({
+    id: "ai.table",
+    label: "Convert to Table",
+    category: "AI",
+    execute: () => {
+      const text = getEditorText();
+      if (text) console.log(convertToTable(text));
+    },
+  });
+  registerAction({
+    id: "ai.rewrite", label: "Rewrite Selection", category: "AI", execute: () => rewriteSelection() });
   registerAction({ id: "ai.summarize", label: "Summarize Selection", category: "AI", execute: () => summarizeSelection() });
   registerAction({ id: "ai.explain", label: "Explain Selection", category: "AI", execute: () => explainSelection() });
   registerAction({ id: "ai.translate", label: "Translate Selection", category: "AI", execute: () => translateSelection() });
