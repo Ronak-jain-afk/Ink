@@ -2,8 +2,9 @@ import { bus } from "../../system/events";
 
 export type WorkspaceMode = "normal" | "writing" | "review" | "git" | "ai" | "presentation" | "distraction-free";
 
-const state: { mode: WorkspaceMode; settings: Record<string, boolean> } = {
+const state: { mode: WorkspaceMode; settings: Record<string, boolean>; defaultMode: WorkspaceMode } = {
   mode: "normal",
+  defaultMode: "normal",
   settings: {
     showSidebars: true,
     showStatusBar: true,
@@ -11,15 +12,27 @@ const state: { mode: WorkspaceMode; settings: Record<string, boolean> } = {
   },
 };
 
+export function setDefaultMode(mode: WorkspaceMode): void {
+  state.defaultMode = mode;
+}
+
+export function getDefaultMode(): WorkspaceMode {
+  return state.defaultMode;
+}
+
 export function setMode(mode: WorkspaceMode): void {
   state.mode = mode;
-  if (mode === "distraction-free") {
+  if (mode === "writing") {
+    state.settings.showSidebars = false;
+    state.settings.showStatusBar = true;
+    state.settings.fullWidth = true;
+  } else if (mode === "distraction-free") {
     state.settings.showSidebars = false;
     state.settings.showStatusBar = false;
     state.settings.fullWidth = true;
   } else if (mode === "presentation") {
     state.settings.showSidebars = false;
-    state.settings.showStatusBar = true;
+    state.settings.showStatusBar = false;
     state.settings.fullWidth = true;
   } else if (mode === "ai") {
     state.settings.showSidebars = true;

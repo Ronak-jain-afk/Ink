@@ -29,7 +29,7 @@ import { listAvailableModels, setModel, getCurrentModel } from "./modules/ai/mod
 import { registerSettingsActions } from "./modules/settings/ui";
 import { initDefaultBindings } from "./modules/keybindings/store";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
-import { setMode, type WorkspaceMode } from "./modules/modes/store";
+import { setMode, setDefaultMode, type WorkspaceMode } from "./modules/modes/store";
 import { exportHTML, exportPreview, exportMarkdown } from "./modules/export/store";
 import { bus } from "./system/events";
 
@@ -217,6 +217,12 @@ function registerCoreActions(): void {
       label: `Switch to ${m.charAt(0).toUpperCase() + m.slice(1)} Mode`,
       category: "Mode",
       execute: () => setMode(m),
+    });
+    registerAction({
+      id: `mode.default.${m}`,
+      label: `Set Default Mode: ${m.charAt(0).toUpperCase() + m.slice(1)}`,
+      category: "Mode",
+      execute: () => setDefaultMode(m),
     });
   }
 

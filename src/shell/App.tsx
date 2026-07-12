@@ -116,7 +116,11 @@ export function App() {
       bus.on("git:status-changed", () => setRev(n => n + 1)),
       bus.on("diff:show", () => { setShowDiff(true); setRev(n => n + 1); }),
       bus.on("diff:close", () => { setShowDiff(false); setRev(n => n + 1); }),
-      bus.on("mode:changed", ({ mode }) => { setShowDiff(mode === "review"); setRev(n => n + 1); }),
+      bus.on("mode:changed", ({ mode }) => {
+        setShowDiff(mode === "review");
+        setShowPreview(mode === "presentation");
+        setRev(n => n + 1);
+      }),
       bus.on("ai:update", () => setRev(n => n + 1)),
     ];
     return () => unsubs.forEach(fn => fn());
@@ -131,7 +135,6 @@ export function App() {
 
   const editorWidth = modeSettings.fullWidth ? 100 : modeSettings.showSidebars ? 50 : 80;
   const sidebarWidth = currentMode === "ai" ? 50 : currentMode === "git" ? 45 : 30;
-  const showDiffByDefault = currentMode === "review";
 
   return (
     <box width="100%" height="100%" flexDirection="row" backgroundColor={theme.bg}>
