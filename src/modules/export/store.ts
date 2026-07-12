@@ -2,6 +2,15 @@ import { writeFileSync } from "node:fs";
 import { parseMarkdown } from "../preview/parser";
 
 // ponytail: HTML export only; PDF via OS print. Full Pandoc/LaTeX integration deferred.
+export function exportPreview(markdown: string): string {
+  const tokens = parseMarkdown(markdown);
+  const headingCount = tokens.filter((t: any) => t.type === "heading").length;
+  const wordCount = markdown.split(/\s+/).filter(Boolean).length;
+  const charCount = markdown.length;
+  const outputSize = Math.round(wordCount * 0.02) + "KB";
+  return `${headingCount} headings, ${wordCount} words, ${charCount} chars, ~${outputSize} HTML`;
+}
+
 export function exportHTML(markdown: string, outputPath: string): void {
   const body = renderHTMLBody(parseMarkdown(markdown));
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
