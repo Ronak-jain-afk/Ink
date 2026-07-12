@@ -1,6 +1,6 @@
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
-import { App, openFileInEditor } from "./shell/App";
+import { App, openFileInEditor, undoExternal, redoExternal } from "./shell/App";
 import { pickAndOpenFolder } from "./components/FileExplorer";
 import { getTabs, getActiveTab, openTab } from "./modules/workspace/store";
 import { loadSession, saveSession } from "./modules/workspace/session";
@@ -245,6 +245,18 @@ async function main() {
   bus.on("tab:closed", saveCurrentSession);
 
   renderer.keyInput.on("keypress", (event) => {
+    if (event.ctrl && event.name === "s") {
+      bus.emit("file:saved", { filePath: "" });
+      return;
+    }
+    if (event.ctrl && event.name === "z" && !event.shift) {
+      undoExternal?.();
+      return;
+    }
+    if (event.ctrl && event.shift && event.name === "z") {
+      redoExternal?.();
+      return;
+    }
     if (event.ctrl && event.shift && event.name === "p") {
       bus.emit("preview:toggle", {});
     }

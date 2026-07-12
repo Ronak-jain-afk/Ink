@@ -18,10 +18,17 @@ import { getConversation } from "../modules/ai/panel-store";
 import { AIPanel } from "../components/AIPanel";
 import { getMode, getModeSettings } from "../modules/modes/store";
 import { setEditorText as setSharedEditorText } from "../modules/workspace/workspace-store";
+import { pushSnapshot, undo, redo, clearStack } from "../modules/workspace/undo";
+import { writeFileContent } from "../modules/workspace/file-system";
+import { markDirty } from "../modules/workspace/store";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
 let setEditorTextExternal: ((t: string) => void) | null = null;
+let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
+let undoRedoActive = false;
+export let undoExternal: (() => void) | null = null;
+export let redoExternal: (() => void) | null = null;
 
 function hasSplits(pane: Pane | null): boolean {
   if (!pane) return false;
@@ -68,7 +75,32 @@ export function App() {
     if (!splitState.root) initSplit();
     setEditorTextExternal = setEditorText;
     setSharedEditorText(editorText);
-    return () => { setEditorTextExternal = null; };
+    const tab = getActiveTab();
+    if (tab) {
+      if (undoRedoActive) { undoRedoActive = false; }
+      else pushSnapshot(tab.id, editorText);
+      markDirty(tab.id, true);
+      if (autosaveTimer) clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(() => {
+        if (tab.filePath && editorText) {
+          writeFileContent(tab.filePath, editorText).catch(() => {});
+          markDirty(tab.id, false);
+        }
+      }, 2000);
+    }
+    undoExternal = () => {
+      const t = getActiveTab();
+      if (!t) return;
+      const prev = undo(t.id);
+      if (prev !== null) { undoRedoActive = true; setEditorText(prev); setSharedEditorText(prev); }
+    };
+    redoExternal = () => {
+      const t = getActiveTab();
+      if (!t) return;
+      const next = redo(t.id);
+      if (next !== null) { undoRedoActive = true; setEditorText(next); setSharedEditorText(next); }
+    };
+    return () => { setEditorTextExternal = null; if (autosaveTimer) clearTimeout(autosaveTimer); };
   }, [editorText]);
 
   useEffect(() => {
