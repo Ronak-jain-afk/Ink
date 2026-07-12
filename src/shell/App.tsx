@@ -16,6 +16,7 @@ import { getGitState } from "../modules/git/detect";
 import { getCurrentDiff } from "../modules/git/diff-store";
 import { getConversation } from "../modules/ai/panel-store";
 import { AIPanel } from "../components/AIPanel";
+import { getMode } from "../modules/modes/store";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -81,6 +82,7 @@ export function App() {
       bus.on("git:status-changed", () => setRev(n => n + 1)),
       bus.on("diff:show", () => { setShowDiff(true); setRev(n => n + 1); }),
       bus.on("diff:close", () => { setShowDiff(false); setRev(n => n + 1); }),
+      bus.on("mode:changed", () => setRev(n => n + 1)),
       bus.on("ai:update", () => setRev(n => n + 1)),
     ];
     return () => unsubs.forEach(fn => fn());
@@ -90,6 +92,7 @@ export function App() {
   const previewContent = editorText && showPreview ? renderPreview(parseMarkdown(editorText)) : null;
   const theme = getTheme();
   const git = getGitState();
+  const currentMode = getMode();
 
   return (
     <box width="100%" height="100%" flexDirection="row" backgroundColor={theme.bg}>
@@ -149,7 +152,7 @@ export function App() {
         )}
 
         <box height={1} width="100%" flexDirection="row">
-          <text content={` ${showPreview ? "PREVIEW" : "NORMAL"} `} />
+          <text content={` ${currentMode.toUpperCase()} `} />
           {git.isRepo && (
             <text content={` ${git.branch}${git.dirty ? " ●" : ""} `} />
           )}

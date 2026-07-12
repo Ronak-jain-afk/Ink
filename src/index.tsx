@@ -20,6 +20,7 @@ import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review"
 import { registerDefaultCommands, listSlashCommands, executeSlashCommand } from "./modules/ai/slash";
 import { rewriteSelection, summarizeSelection, explainSelection, translateSelection } from "./modules/ai/selection-actions";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
+import { setMode, type WorkspaceMode } from "./modules/modes/store";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -110,6 +111,16 @@ function registerCoreActions(): void {
     execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPush(ws.rootPath); },
   });
   registerDefaultCommands();
+
+  const modes: WorkspaceMode[] = ["normal", "writing", "review", "git", "ai", "presentation", "distraction-free"];
+  for (const m of modes) {
+    registerAction({
+      id: `mode.${m}`,
+      label: `Switch to ${m.charAt(0).toUpperCase() + m.slice(1)} Mode`,
+      category: "Mode",
+      execute: () => setMode(m),
+    });
+  }
 
   registerAction({ id: "ai.cancel", label: "Cancel AI Request", category: "AI", execute: () => cancelCurrentRequest() });
   registerAction({ id: "ai.rewrite", label: "Rewrite Selection", category: "AI", execute: () => rewriteSelection() });
