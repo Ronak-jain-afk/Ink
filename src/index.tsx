@@ -9,6 +9,7 @@ import { getWorkspaceState } from "./modules/workspace/workspace-store";
 import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
 import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen } from "./modules/palette/store";
+import { stageAll, unstageAll } from "./modules/git/staging";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -39,6 +40,18 @@ function registerCoreActions(): void {
     category: "Navigation",
     keybinding: "Ctrl+P",
     execute: () => openPalette(),
+  });
+  registerAction({
+    id: "git.stageAll",
+    label: "Stage All Changes",
+    category: "Git",
+    execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) stageAll(ws.rootPath); },
+  });
+  registerAction({
+    id: "git.unstageAll",
+    label: "Unstage All Changes",
+    category: "Git",
+    execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) unstageAll(ws.rootPath); },
   });
 }
 
