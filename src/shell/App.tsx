@@ -9,6 +9,7 @@ import { getSplitState, initSplit, type Pane } from "../modules/workspace/split"
 import { parseMarkdown } from "../modules/preview/parser";
 import { renderPreview } from "../modules/preview/renderer";
 import { getTheme } from "../modules/themes/store";
+import { PaletteOverlay } from "../components/PaletteOverlay";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -68,6 +69,8 @@ export function App() {
       bus.on("session:restored", () => setRev(n => n + 1)),
       bus.on("preview:toggle", () => setShowPreview(p => !p)),
       bus.on("theme:changed", () => setRev(n => n + 1)),
+      bus.on("palette:open", () => setRev(n => n + 1)),
+      bus.on("palette:close", () => setRev(n => n + 1)),
     ];
     return () => unsubs.forEach(fn => fn());
   }, []);
@@ -98,6 +101,7 @@ export function App() {
           </box>
         )}
 
+        <PaletteOverlay rev={rev} />
         {hasEditor && rootPane && hasSplits(rootPane) ? (
           renderSplitPanes(rootPane)
         ) : hasEditor ? (

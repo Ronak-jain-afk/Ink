@@ -13,6 +13,8 @@ type EventMap = {
   "focus:changed": { paneId: string | null };
   "theme:changed": { theme: string };
   "preview:toggle": {};
+  "palette:open": {};
+  "palette:close": {};
 };
 
 type EventCallback<T> = (data: T) => void;
