@@ -10,6 +10,7 @@ import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
 import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen } from "./modules/palette/store";
 import { stageAll, unstageAll } from "./modules/git/staging";
+import { showActiveFileDiff } from "./modules/git/diff-store";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -52,6 +53,12 @@ function registerCoreActions(): void {
     label: "Unstage All Changes",
     category: "Git",
     execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) unstageAll(ws.rootPath); },
+  });
+  registerAction({
+    id: "git.showDiff",
+    label: "Show File Diff",
+    category: "Git",
+    execute: () => { showActiveFileDiff(); bus.emit("diff:show", {}); },
   });
 }
 
@@ -105,9 +112,12 @@ async function main() {
     if (event.ctrl && event.name === "p") {
       openPalette();
     }
+    if (event.name === "escape") {
+      if (isPaletteOpen()) closePalette();
+      bus.emit("diff:close", {});
+    }
     if (isPaletteOpen()) {
-      if (event.name === "escape") closePalette();
-      else if (event.name === "enter") executeSelected();
+      if (event.name === "enter") executeSelected();
       else if (event.name === "down") selectNext();
       else if (event.name === "up") selectPrev();
     }

@@ -13,6 +13,7 @@ import { PaletteOverlay } from "../components/PaletteOverlay";
 import { OutlinePanel } from "../components/OutlinePanel";
 import { Dashboard } from "../components/Dashboard";
 import { getGitState } from "../modules/git/detect";
+import { getCurrentDiff } from "../modules/git/diff-store";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -52,6 +53,7 @@ export function App() {
   const [rev, setRev] = useState(0);
   const [editorText, setEditorText] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [showDiff, setShowDiff] = useState(false);
   const tabs = getTabs();
   const activeTab = getActiveTab();
   const hasEditor = tabs.length > 0;
@@ -75,6 +77,8 @@ export function App() {
       bus.on("palette:open", () => setRev(n => n + 1)),
       bus.on("palette:close", () => setRev(n => n + 1)),
       bus.on("git:status-changed", () => setRev(n => n + 1)),
+      bus.on("diff:show", () => { setShowDiff(true); setRev(n => n + 1); }),
+      bus.on("diff:close", () => { setShowDiff(false); setRev(n => n + 1); }),
     ];
     return () => unsubs.forEach(fn => fn());
   }, []);
@@ -112,7 +116,12 @@ export function App() {
         )}
 
         <PaletteOverlay rev={rev} />
-        {hasEditor && rootPane && hasSplits(rootPane) ? (
+        {showDiff && (
+          <box flexGrow={1} flexDirection="column" paddingLeft={1}>
+            <text content={getCurrentDiff() ?? "(no diff)"} />
+          </box>
+        )}
+        {!showDiff && hasEditor && rootPane && hasSplits(rootPane) ? (
           renderSplitPanes(rootPane)
         ) : hasEditor ? (
           <box flexGrow={1} flexDirection="row">

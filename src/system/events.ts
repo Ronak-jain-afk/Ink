@@ -13,6 +13,8 @@ type EventMap = {
   "focus:changed": { paneId: string | null };
   "theme:changed": { theme: string };
   "preview:toggle": {};
+  "diff:show": {};
+  "diff:close": {};
   "palette:open": {};
   "palette:close": {};
 };
