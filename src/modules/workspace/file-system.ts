@@ -1,4 +1,4 @@
-import { readFile, writeFile, stat } from "node:fs/promises";
+import { readFile, writeFile, stat, mkdir, unlink, rm, rename } from "node:fs/promises";
 import { existsSync } from "node:fs";
 
 export type LineEnding = "LF" | "CRLF";
@@ -65,4 +65,29 @@ export async function writeFileContent(
 
 export function exists(filePath: string): boolean {
   return existsSync(filePath);
+}
+
+export async function createFile(filePath: string, content = ""): Promise<void> {
+  await writeFile(filePath, content, "utf-8");
+}
+
+export async function createFolder(dirPath: string): Promise<void> {
+  await mkdir(dirPath, { recursive: true });
+}
+
+export async function deleteFile(filePath: string): Promise<void> {
+  await unlink(filePath);
+}
+
+export async function deleteFolder(dirPath: string): Promise<void> {
+  await rm(dirPath, { recursive: true, force: true });
+}
+
+export async function renamePath(oldPath: string, newPath: string): Promise<void> {
+  await rename(oldPath, newPath);
+}
+
+export async function moveFile(src: string, dest: string): Promise<void> {
+  await mkdir(dest.split("/").slice(0, -1).join("/") || ".", { recursive: true });
+  await rename(src, dest);
 }

@@ -89,6 +89,13 @@ let currentEditorText = "";
 export function setEditorText(t: string): void { currentEditorText = t; }
 export function getEditorText(): string { return currentEditorText; }
 
+export async function refreshTree(): Promise<void> {
+  if (!state.rootPath) return;
+  const settings = loadSettings(state.rootPath);
+  state.tree = await buildTree(state.rootPath, settings.showHidden ?? false);
+  bus.emit("workspace:opened", { rootPath: state.rootPath });
+}
+
 export function getAllFiles(): { path: string; name: string }[] {
   const result: { path: string; name: string }[] = [];
   function walk(node: FileNode): void {

@@ -5,7 +5,8 @@ import { pickAndOpenFolder } from "./components/FileExplorer";
 import { getTabs, getActiveTab, openTab } from "./modules/workspace/store";
 import { loadSession, saveSession } from "./modules/workspace/session";
 import { addRecentProject } from "./modules/workspace/recent";
-import { getWorkspaceState, getEditorText } from "./modules/workspace/workspace-store";
+import { getWorkspaceState, getEditorText, refreshTree } from "./modules/workspace/workspace-store";
+import { createFile, createFolder, deleteFile, deleteFolder, renamePath } from "./modules/workspace/file-system";
 import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
 import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen } from "./modules/palette/store";
@@ -112,6 +113,51 @@ function registerCoreActions(): void {
     label: "Push",
     category: "Git",
     execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPush(ws.rootPath); },
+  });
+  registerAction({
+    id: "file.new",
+    label: "New File",
+    category: "File",
+    execute: () => {
+      const ws = getWorkspaceState();
+      if (!ws.rootPath) return;
+      const name = "untitled.md";
+      const path = ws.rootPath + "/" + name;
+      createFile(path, "").then(() => refreshTree()).catch(() => {}); // ponytail: prompts deferred to 3.3
+    },
+  });
+  registerAction({
+    id: "file.newFolder",
+    label: "New Folder",
+    category: "File",
+    execute: () => {
+      const ws = getWorkspaceState();
+      if (!ws.rootPath) return;
+      const name = "new-folder";
+      createFolder(ws.rootPath + "/" + name).then(() => refreshTree()).catch(() => {});
+    },
+  });
+  registerAction({
+    id: "file.delete",
+    label: "Delete Current File",
+    category: "File",
+    execute: () => {
+      const tab = getActiveTab();
+      if (!tab) return;
+      deleteFile(tab.filePath).catch(() => {});
+    },
+  });
+  registerAction({
+    id: "file.rename",
+    label: "Rename Current File",
+    category: "File",
+    execute: () => {
+      const tab = getActiveTab();
+      if (!tab) return;
+      const parts = tab.filePath.split("/");
+      const dir = parts.slice(0, -1).join("/");
+      renamePath(tab.filePath, dir + "/renamed.md").catch(() => {}); // ponytail: prompts deferred to 3.3
+    },
   });
   registerDefaultCommands();
   registerSettingsActions();
