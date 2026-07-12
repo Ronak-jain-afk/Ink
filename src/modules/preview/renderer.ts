@@ -1,5 +1,6 @@
 import type { BlockToken, InlineToken } from "./parser";
 import { renderMermaidBlock } from "./mermaid";
+import { getTier } from "./tiers";
 
 function renderInlinePlain(token: InlineToken): string {
   switch (token.type) {
@@ -25,13 +26,15 @@ function renderBlockPlain(token: BlockToken): string {
       return token.children.map(renderBlockPlain).join("\n").split("\n").map(l => `> ${l}`).join("\n");
     case "list":
       return token.items.map((item, i) => {
-        const bullet = token.ordered ? `${i + 1}.` : "-";
+        const bullet = token.ordered ? `${i + 1}.` : (getTier() === "full" ? "•" : "-");
         return ` ${bullet} ${item.children.map(renderInlinePlain).join("")}`;
       }).join("\n");
     case "tasklist":
       return token.items.map(item => {
-        const check = item.checked ? "[x]" : "[ ]";
-        return ` ${check} ${item.children.map(renderInlinePlain).join("")}`;
+        const checked = getTier() === "full" ? "✔" : "x";
+        const unchecked = getTier() === "full" ? "◻" : " ";
+        const check = item.checked ? checked : unchecked;
+        return ` [${check}] ${item.children.map(renderInlinePlain).join("")}`;
       }).join("\n");
     case "hr":
       return "---";

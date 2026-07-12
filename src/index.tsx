@@ -6,6 +6,7 @@ import { getTabs, getActiveTab, openTab } from "./modules/workspace/store";
 import { loadSession, saveSession } from "./modules/workspace/session";
 import { addRecentProject } from "./modules/workspace/recent";
 import { getWorkspaceState } from "./modules/workspace/workspace-store";
+import { detectTier } from "./modules/preview/tiers";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -28,6 +29,8 @@ async function main() {
   renderer.start();
 
   renderer.on("capabilities", () => {
+    const caps = renderer.capabilities;
+    if (caps) detectTier({ trueColor: caps.rgb, unicode: caps.unicode === "unicode" });
     renderer.requestRender();
   });
 
