@@ -12,6 +12,7 @@ import { registerAction, openPalette, closePalette, executeSelected, selectNext,
 import { stageAll, unstageAll } from "./modules/git/staging";
 import { showActiveFileDiff } from "./modules/git/diff-store";
 import { commit as doGitCommit } from "./modules/git/commit";
+import { listBranches, switchBranch } from "./modules/git/branches";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -60,6 +61,17 @@ function registerCoreActions(): void {
     label: "Show File Diff",
     category: "Git",
     execute: () => { showActiveFileDiff(); bus.emit("diff:show", {}); },
+  });
+  registerAction({
+    id: "git.listBranches",
+    label: "List Branches",
+    category: "Git",
+    execute: () => {
+      const ws = getWorkspaceState();
+      if (!ws.rootPath) return;
+      const branches = listBranches(ws.rootPath);
+      console.log(branches.map(b => `${b.current ? "*" : " "} ${b.name}`).join("\n"));
+    },
   });
   registerAction({
     id: "git.quickCommit",
