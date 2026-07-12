@@ -10,6 +10,7 @@ import { getSplitState } from "./modules/workspace/split";
 import { createFile, createFolder, deleteFile, deleteFolder, renamePath } from "./modules/workspace/file-system";
 import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
+import { searchHeadings, searchSymbols, regexSearch } from "./modules/search/advanced-search";
 import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen } from "./modules/palette/store";
 import { stageAll, unstageAll } from "./modules/git/staging";
 import { showActiveFileDiff } from "./modules/git/diff-store";
@@ -114,6 +115,24 @@ function registerCoreActions(): void {
     label: "Push",
     category: "Git",
     execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPush(ws.rootPath); },
+  });
+  registerAction({
+    id: "search.headings",
+    label: "Search Headings",
+    category: "Search",
+    execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) searchHeadings("").then(r => console.log(r.map(h => `${"  ".repeat(h.level - 1)}${h.text} — ${h.filePath}:${h.line}`).join("\n"))); },
+  });
+  registerAction({
+    id: "search.symbols",
+    label: "Search Symbols (frontmatter/tags)",
+    category: "Search",
+    execute: () => { searchSymbols("").then(r => console.log(r.map(s => `[${s.type}] ${s.name} — ${s.filePath}:${s.line}`).join("\n"))); },
+  });
+  registerAction({
+    id: "search.regex",
+    label: "Regex Search",
+    category: "Search",
+    execute: () => { /* ponytail: inline input deferred — accepts from query */ },
   });
   registerAction({
     id: "file.new",
