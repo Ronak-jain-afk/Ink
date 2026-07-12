@@ -17,6 +17,7 @@ import { fetch as gitFetch, pull as gitPull, push as gitPush } from "./modules/g
 import { getLog } from "./modules/git/log";
 import { startGitPolling } from "./modules/git/watch";
 import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review";
+import { registerDefaultCommands, listSlashCommands, executeSlashCommand } from "./modules/ai/slash";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -106,6 +107,22 @@ function registerCoreActions(): void {
     category: "Git",
     execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPush(ws.rootPath); },
   });
+  registerDefaultCommands();
+
+  // Register slash commands as palette actions
+  for (const cmd of listSlashCommands()) {
+    registerAction({
+      id: `slash.${cmd.name}`,
+      label: `/${cmd.name} — ${cmd.description}`,
+      category: "AI",
+      execute: () => {
+        const ws = getWorkspaceState();
+        const text = getActiveTab() ? "" : ""; // TODO: pass active file content
+        executeSlashCommand(cmd.name, "", text);
+      },
+    });
+  }
+
   registerAction({
     id: "ai.acceptAllEdits",
     label: "Accept All AI Edits",
