@@ -29,6 +29,7 @@ import { switchProvider, getProviderType } from "./modules/ai/store";
 import { listAvailableModels, setModel, getCurrentModel } from "./modules/ai/model-store";
 import { registerSettingsActions } from "./modules/settings/ui";
 import { getKeybindings, remapKey, getConflicts, loadOverrides, saveOverrides } from "./modules/keybindings/store";
+import { loadPlugins } from "./modules/plugins/loader";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
 import { setMode, setDefaultMode, type WorkspaceMode } from "./modules/modes/store";
 import { exportHTML, exportPreview, exportMarkdown, exportPDF, exportStaticSite, exportArchive } from "./modules/export/store";
@@ -228,8 +229,14 @@ function registerCoreActions(): void {
   });
   registerDefaultCommands();
   registerSettingsActions();
+  registerAction({
+    id: "plugins.reload",
+    label: "Reload Plugins",
+    category: "Extensions",
+    execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) loadPlugins(ws.rootPath); },
+  });
   const ws = getWorkspaceState();
-  if (ws.rootPath) loadOverrides(ws.rootPath);
+  if (ws.rootPath) { loadOverrides(ws.rootPath); loadPlugins(ws.rootPath); }
 
   const modes: WorkspaceMode[] = ["normal", "writing", "review", "git", "ai", "presentation", "distraction-free"];
   for (const m of modes) {
