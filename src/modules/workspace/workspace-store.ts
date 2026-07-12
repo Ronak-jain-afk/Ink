@@ -1,6 +1,7 @@
 import { readdir, stat } from "node:fs/promises";
 import { join, relative, basename } from "node:path";
 import { bus } from "../../system/events";
+import { loadSettings } from "./settings";
 
 export interface FileNode {
   name: string;
@@ -49,6 +50,8 @@ async function buildTree(dirPath: string, showHidden: boolean): Promise<FileNode
 
 export async function openWorkspace(folderPath: string): Promise<void> {
   state.rootPath = folderPath;
+  const settings = loadSettings(folderPath);
+  state.showHidden = settings.showHidden ?? false;
   state.tree = await buildTree(folderPath, state.showHidden);
   bus.emit("workspace:opened", { rootPath: folderPath });
 }
