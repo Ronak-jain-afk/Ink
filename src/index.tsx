@@ -15,6 +15,7 @@ import { commit as doGitCommit } from "./modules/git/commit";
 import { listBranches, switchBranch } from "./modules/git/branches";
 import { fetch as gitFetch, pull as gitPull, push as gitPush } from "./modules/git/remote";
 import { getLog } from "./modules/git/log";
+import { startGitPolling } from "./modules/git/watch";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -134,6 +135,8 @@ async function main() {
     if (caps) detectTier({ trueColor: caps.rgb, unicode: caps.unicode === "unicode" });
     renderer.requestRender();
   });
+
+  startGitPolling(5000);
 
   setTimeout(async () => {
     await pickAndOpenFolder();
