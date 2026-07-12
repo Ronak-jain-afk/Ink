@@ -1,0 +1,21 @@
+{
+  "name": "ink",
+  "module": "src/index.ts",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint"
+  },
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@opentui/react": "^0.4.3",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@opentui/core": "^0.4.3"
+  }
+}
