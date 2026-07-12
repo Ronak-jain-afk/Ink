@@ -16,7 +16,7 @@ import { getGitState } from "../modules/git/detect";
 import { getCurrentDiff } from "../modules/git/diff-store";
 import { getConversation } from "../modules/ai/panel-store";
 import { AIPanel } from "../components/AIPanel";
-import { getMode } from "../modules/modes/store";
+import { getMode, getModeSettings } from "../modules/modes/store";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -93,16 +93,21 @@ export function App() {
   const theme = getTheme();
   const git = getGitState();
   const currentMode = getMode();
+  const modeSettings = getModeSettings();
+
+  const editorWidth = modeSettings.fullWidth ? 100 : modeSettings.showSidebars ? 50 : 80;
 
   return (
     <box width="100%" height="100%" flexDirection="row" backgroundColor={theme.bg}>
-      <box width={30} flexDirection="column">
-        <FileExplorer rev={rev} />
-        {editorText && (
-          <OutlinePanel editorText={editorText} />
-        )}
-        <AIPanel />
-      </box>
+      {modeSettings.showSidebars && (
+        <box width={30} flexDirection="column">
+          <FileExplorer rev={rev} />
+          {editorText && (
+            <OutlinePanel editorText={editorText} />
+          )}
+          <AIPanel />
+        </box>
+      )}
       <box flexGrow={1} flexDirection="column">
         <box height={1} width="100%" flexDirection="row">
           {tabs.length === 0 ? (
@@ -151,17 +156,19 @@ export function App() {
           <Dashboard />
         )}
 
-        <box height={1} width="100%" flexDirection="row">
-          <text content={` ${currentMode.toUpperCase()} `} />
-          {git.isRepo && (
-            <text content={` ${git.branch}${git.dirty ? " ●" : ""} `} />
-          )}
-          <box flexGrow={1} />
-          {stats && (
-            <text content={` ${stats.words}w ${stats.chars}c ${stats.readingTime}m `} />
-          )}
-          <text content={activeTab?.fileName ?? "No file open"} />
-        </box>
+        {modeSettings.showStatusBar && (
+          <box height={1} width="100%" flexDirection="row">
+            <text content={` ${currentMode.toUpperCase()} `} />
+            {git.isRepo && (
+              <text content={` ${git.branch}${git.dirty ? " ●" : ""} `} />
+            )}
+            <box flexGrow={1} />
+            {stats && (
+              <text content={` ${stats.words}w ${stats.chars}c ${stats.readingTime}m `} />
+            )}
+            <text content={activeTab?.fileName ?? "No file open"} />
+          </box>
+        )}
       </box>
     </box>
   );
