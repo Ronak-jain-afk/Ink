@@ -9,6 +9,7 @@ import { addRecentProject } from "./modules/workspace/recent";
 import { getWorkspaceState, getEditorText, refreshTree } from "./modules/workspace/workspace-store";
 import { getSplitState } from "./modules/workspace/split";
 import { createFile, createFolder, deleteFile, deleteFolder, renamePath } from "./modules/workspace/file-system";
+import { join } from "node:path";
 import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
 import { searchHeadings, searchSymbols, regexSearch } from "./modules/search/advanced-search";
@@ -30,7 +31,7 @@ import { registerSettingsActions } from "./modules/settings/ui";
 import { initDefaultBindings } from "./modules/keybindings/store";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
 import { setMode, setDefaultMode, type WorkspaceMode } from "./modules/modes/store";
-import { exportHTML, exportPreview, exportMarkdown } from "./modules/export/store";
+import { exportHTML, exportPreview, exportMarkdown, exportPDF, exportStaticSite, exportArchive } from "./modules/export/store";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -246,6 +247,36 @@ function registerCoreActions(): void {
       if (!tab) return;
       const path = tab.filePath.replace(/\.md$/, "-normalized.md");
       exportMarkdown(getEditorText(), path);
+    },
+  });
+  registerAction({
+    id: "file.exportPDF",
+    label: "Export to PDF (via HTML print)",
+    category: "File",
+    execute: () => {
+      const tab = getActiveTab();
+      if (!tab) return;
+      exportPDF(getEditorText(), tab.filePath.replace(/\.md$/, ".pdf"));
+    },
+  });
+  registerAction({
+    id: "file.exportStaticSite",
+    label: "Export Static Site",
+    category: "File",
+    execute: () => {
+      const ws = getWorkspaceState();
+      if (!ws.rootPath) return;
+      exportStaticSite(ws.rootPath, join(ws.rootPath, "_site"));
+    },
+  });
+  registerAction({
+    id: "file.exportArchive",
+    label: "Export Workspace Archive",
+    category: "File",
+    execute: () => {
+      const ws = getWorkspaceState();
+      if (!ws.rootPath) return;
+      exportArchive(ws.rootPath, join(ws.rootPath, "archive.txt"));
     },
   });
   registerAction({
