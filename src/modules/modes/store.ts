@@ -29,6 +29,10 @@ export function setMode(mode: WorkspaceMode): void {
     state.settings.showSidebars = true;
     state.settings.showStatusBar = true;
     state.settings.fullWidth = false;
+  } else if (mode === "review") {
+    state.settings.showSidebars = true;
+    state.settings.showStatusBar = true;
+    state.settings.fullWidth = true;
   } else {
     state.settings.showSidebars = true;
     state.settings.showStatusBar = true;
