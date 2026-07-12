@@ -6,6 +6,7 @@ import { getTabs, getActiveTab, openTab } from "./modules/workspace/store";
 import { loadSession, saveSession } from "./modules/workspace/session";
 import { addRecentProject } from "./modules/workspace/recent";
 import { getWorkspaceState, getEditorText, refreshTree } from "./modules/workspace/workspace-store";
+import { getSplitState } from "./modules/workspace/split";
 import { createFile, createFolder, deleteFile, deleteFolder, renamePath } from "./modules/workspace/file-system";
 import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
@@ -30,7 +31,7 @@ import { bus } from "./system/events";
 function saveCurrentSession(): void {
   const ws = getWorkspaceState();
   if (ws.rootPath) {
-    saveSession(ws.rootPath, getTabs(), getActiveTab()?.filePath ?? null);
+    saveSession(ws.rootPath, getTabs(), getActiveTab()?.filePath ?? null, getSplitState().root, {});
   }
 }
 
@@ -281,6 +282,8 @@ async function main() {
       if (session) {
         for (const t of session.tabs) {
           openTab(t.filePath);
+          const content = session.fileContents[t.filePath];
+          if (content) { /* setEditorTextExternal?.(content); */ } // ponytail: set via textarea when available
         }
         bus.emit("session:restored", {});
       }
