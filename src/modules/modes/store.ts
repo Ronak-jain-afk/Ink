@@ -21,6 +21,14 @@ export function setMode(mode: WorkspaceMode): void {
     state.settings.showSidebars = false;
     state.settings.showStatusBar = true;
     state.settings.fullWidth = true;
+  } else if (mode === "ai") {
+    state.settings.showSidebars = true;
+    state.settings.showStatusBar = true;
+    state.settings.fullWidth = false;
+  } else if (mode === "git") {
+    state.settings.showSidebars = true;
+    state.settings.showStatusBar = true;
+    state.settings.fullWidth = false;
   } else {
     state.settings.showSidebars = true;
     state.settings.showStatusBar = true;

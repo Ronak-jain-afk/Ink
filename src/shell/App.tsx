@@ -98,11 +98,12 @@ export function App() {
   const modeSettings = getModeSettings();
 
   const editorWidth = modeSettings.fullWidth ? 100 : modeSettings.showSidebars ? 50 : 80;
+  const sidebarWidth = currentMode === "ai" ? 50 : currentMode === "git" ? 45 : 30;
 
   return (
     <box width="100%" height="100%" flexDirection="row" backgroundColor={theme.bg}>
       {modeSettings.showSidebars && (
-        <box width={30} flexDirection="column">
+        <box width={sidebarWidth} flexDirection="column">
           <FileExplorer rev={rev} />
           {editorText && (
             <OutlinePanel editorText={editorText} />
