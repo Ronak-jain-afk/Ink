@@ -22,7 +22,7 @@ import { rewriteSelection, summarizeSelection, explainSelection, translateSelect
 import { registerSettingsActions } from "./modules/settings/ui";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
 import { setMode, type WorkspaceMode } from "./modules/modes/store";
-import { exportHTML, exportPreview } from "./modules/export/store";
+import { exportHTML, exportPreview, exportMarkdown } from "./modules/export/store";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -134,6 +134,17 @@ function registerCoreActions(): void {
       if (!tab) return;
       const path = tab.filePath.replace(/\.md$/, ".html");
       exportHTML(getEditorText(), path);
+    },
+  });
+  registerAction({
+    id: "file.exportMarkdown",
+    label: "Export Normalized Markdown",
+    category: "File",
+    execute: () => {
+      const tab = getActiveTab();
+      if (!tab) return;
+      const path = tab.filePath.replace(/\.md$/, "-normalized.md");
+      exportMarkdown(getEditorText(), path);
     },
   });
   registerAction({

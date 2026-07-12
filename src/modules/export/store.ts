@@ -2,6 +2,16 @@ import { writeFileSync } from "node:fs";
 import { parseMarkdown } from "../preview/parser";
 
 // ponytail: HTML export only; PDF via OS print. Full Pandoc/LaTeX integration deferred.
+export function exportMarkdown(markdown: string, outputPath: string): void {
+  const normalized = markdown
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\n{4,}/g, "\n\n\n")
+    .trim() + "\n";
+  writeFileSync(outputPath, normalized, "utf-8");
+}
+
+// ponytail: HTML export only; PDF via OS print. Full Pandoc/LaTeX integration deferred.
 export function exportPreview(markdown: string): string {
   const tokens = parseMarkdown(markdown);
   const headingCount = tokens.filter((t: any) => t.type === "heading").length;
