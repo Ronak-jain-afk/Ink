@@ -5,6 +5,7 @@ import { loadSettings } from "./settings";
 import { addRoot, removeRoot, clearRoots } from "./multiroot";
 import { loadThemeForWorkspace } from "../themes/store";
 import { detectGit } from "../git/detect";
+import { getFileStatuses, type GitFileStatus } from "../git/status-badges";
 
 export interface FileNode {
   name: string;
@@ -18,12 +19,14 @@ interface WorkspaceState {
   rootPath: string | null;
   tree: FileNode | null;
   showHidden: boolean;
+  fileStatuses: Map<string, GitFileStatus>;
 }
 
 const state: WorkspaceState = {
   rootPath: null,
   tree: null,
   showHidden: false,
+  fileStatuses: new Map(),
 };
 
 async function buildTree(dirPath: string, showHidden: boolean): Promise<FileNode> {
@@ -54,6 +57,7 @@ async function buildTree(dirPath: string, showHidden: boolean): Promise<FileNode
 export async function openWorkspace(folderPath: string, append = false): Promise<void> {
   loadThemeForWorkspace(folderPath);
   detectGit(folderPath);
+  state.fileStatuses = getFileStatuses(folderPath);
   bus.emit("git:status-changed", {});
   const settings = loadSettings(folderPath);
   const showHidden = settings.showHidden ?? false;

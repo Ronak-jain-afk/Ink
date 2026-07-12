@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { getWorkspaceState, type FileNode } from "../modules/workspace/workspace-store";
+import { getWorkspaceState, getRelativePath, type FileNode } from "../modules/workspace/workspace-store";
 import { getRecentProjects } from "../modules/workspace/recent";
 import { openFileInEditor } from "../shell/App";
+import { statusGlyph, type GitFileStatus } from "../modules/git/status-badges";
 
 interface TreeNodeProps {
   node: FileNode;
   depth: number;
+  fileStatuses: Map<string, GitFileStatus>;
 }
 
-function TreeNode({ node, depth }: TreeNodeProps) {
+function TreeNode({ node, depth, fileStatuses }: TreeNodeProps) {
   const [expanded, setExpanded] = useState(node.expanded ?? false);
   const indent = "\u00A0".repeat(Math.max(0, depth * 2));
 
@@ -19,15 +21,19 @@ function TreeNode({ node, depth }: TreeNodeProps) {
           <text content={`${indent}${expanded ? "▼" : "▶"} ${node.name}/`} />
         </box>
         {expanded && node.children?.map(child => (
-          <TreeNode key={child.path} node={child} depth={depth + 1} />
+          <TreeNode key={child.path} node={child} depth={depth + 1} fileStatuses={fileStatuses} />
         ))}
       </>
     );
   }
 
+  const rel = getRelativePath(node.path);
+  const status = fileStatuses.get(rel);
+  const badge = status ? statusGlyph(status) : "";
+
   return (
     <box height={1} onMouseDown={() => openFileInEditor(node.path)}>
-      <text content={`${indent} ${node.name}`} />
+      <text content={`${indent} ${badge} ${node.name}`} />
     </box>
   );
 }
@@ -47,11 +53,11 @@ export function FileExplorer({ rev }: { rev: number }) {
         <RecentList />
       ) : multi.roots.length > 0 ? (
         allTrees.map(t => (
-          <TreeNode key={t.name} node={{ name: t.name, path: t.name, isDirectory: true, children: t.children, expanded: true }} depth={0} />
+          <TreeNode key={t.name} node={{ name: t.name, path: t.name, isDirectory: true, children: t.children, expanded: true }} depth={0} fileStatuses={ws.fileStatuses} />
         ))
       ) : (
         ws.tree.children?.map(child => (
-          <TreeNode key={child.path} node={child} depth={0} />
+          <TreeNode key={child.path} node={child} depth={0} fileStatuses={ws.fileStatuses} />
         ))
       )}
     </box>
