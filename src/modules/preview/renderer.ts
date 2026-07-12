@@ -1,4 +1,5 @@
 import type { BlockToken, InlineToken } from "./parser";
+import { renderMermaidBlock } from "./mermaid";
 
 function renderInlinePlain(token: InlineToken): string {
   switch (token.type) {
@@ -18,6 +19,7 @@ function renderBlockPlain(token: BlockToken): string {
     case "paragraph":
       return token.children.map(renderInlinePlain).join("");
     case "codeblock":
+      if (token.lang === "mermaid") return renderMermaidBlock(token.code);
       return `[code:${token.lang}]\n${token.code}`;
     case "blockquote":
       return token.children.map(renderBlockPlain).join("\n").split("\n").map(l => `> ${l}`).join("\n");
