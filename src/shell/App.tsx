@@ -17,6 +17,7 @@ import { getCurrentDiff } from "../modules/git/diff-store";
 import { getConversation } from "../modules/ai/panel-store";
 import { AIPanel } from "../components/AIPanel";
 import { getMode, getModeSettings } from "../modules/modes/store";
+import { setEditorText as setSharedEditorText } from "../modules/workspace/workspace-store";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -66,8 +67,9 @@ export function App() {
   useEffect(() => {
     if (!splitState.root) initSplit();
     setEditorTextExternal = setEditorText;
+    setSharedEditorText(editorText);
     return () => { setEditorTextExternal = null; };
-  }, []);
+  }, [editorText]);
 
   useEffect(() => {
     const unsubs = [

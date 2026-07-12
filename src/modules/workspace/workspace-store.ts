@@ -84,6 +84,11 @@ export function getRelativePath(absPath: string): string {
   return relative(state.rootPath, absPath);
 }
 
+// ponytail: shared editor text for export/selection actions
+let currentEditorText = "";
+export function setEditorText(t: string): void { currentEditorText = t; }
+export function getEditorText(): string { return currentEditorText; }
+
 export function getAllFiles(): { path: string; name: string }[] {
   const result: { path: string; name: string }[] = [];
   function walk(node: FileNode): void {

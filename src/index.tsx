@@ -5,7 +5,7 @@ import { pickAndOpenFolder } from "./components/FileExplorer";
 import { getTabs, getActiveTab, openTab } from "./modules/workspace/store";
 import { loadSession, saveSession } from "./modules/workspace/session";
 import { addRecentProject } from "./modules/workspace/recent";
-import { getWorkspaceState } from "./modules/workspace/workspace-store";
+import { getWorkspaceState, getEditorText } from "./modules/workspace/workspace-store";
 import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
 import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen } from "./modules/palette/store";
@@ -21,6 +21,7 @@ import { registerDefaultCommands, listSlashCommands, executeSlashCommand } from 
 import { rewriteSelection, summarizeSelection, explainSelection, translateSelection } from "./modules/ai/selection-actions";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
 import { setMode, type WorkspaceMode } from "./modules/modes/store";
+import { exportHTML } from "./modules/export/store";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -121,6 +122,18 @@ function registerCoreActions(): void {
       execute: () => setMode(m),
     });
   }
+
+  registerAction({
+    id: "file.exportHTML",
+    label: "Export to HTML",
+    category: "File",
+    execute: () => {
+      const tab = getActiveTab();
+      if (!tab) return;
+      const path = tab.filePath.replace(/\.md$/, ".html");
+      exportHTML(getEditorText(), path);
+    },
+  });
 
   registerAction({ id: "ai.cancel", label: "Cancel AI Request", category: "AI", execute: () => cancelCurrentRequest() });
   registerAction({ id: "ai.rewrite", label: "Rewrite Selection", category: "AI", execute: () => rewriteSelection() });
