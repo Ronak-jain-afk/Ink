@@ -2,6 +2,7 @@ import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { App, openFileInEditor, undoExternal, redoExternal } from "./shell/App";
 import { pickAndOpenFolder } from "./components/FileExplorer";
+import { goHome } from "./components/Dashboard";
 import { getTabs, getActiveTab, openTab } from "./modules/workspace/store";
 import { loadSession, saveSession } from "./modules/workspace/session";
 import { addRecentProject } from "./modules/workspace/recent";
@@ -134,6 +135,12 @@ function registerCoreActions(): void {
     label: "Search & Replace",
     category: "Search",
     execute: () => { if (getActiveTab()) searchReplace("TODO", "FIXME").then(n => console.log(`Replaced in ${n} files`)); },
+  });
+  registerAction({
+    id: "dashboard.goHome",
+    label: "Go Home (Dashboard)",
+    category: "Navigation",
+    execute: () => goHome(),
   });
   registerAction({
     id: "search.buildIndex",
