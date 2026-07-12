@@ -28,7 +28,7 @@ import { rewriteSelection, summarizeSelection, explainSelection, translateSelect
 import { switchProvider, getProviderType } from "./modules/ai/store";
 import { listAvailableModels, setModel, getCurrentModel } from "./modules/ai/model-store";
 import { registerSettingsActions } from "./modules/settings/ui";
-import { initDefaultBindings } from "./modules/keybindings/store";
+import { getKeybindings, remapKey, getConflicts, loadOverrides, saveOverrides } from "./modules/keybindings/store";
 import { cancelCurrentRequest } from "./modules/ai/cancellation";
 import { setMode, setDefaultMode, type WorkspaceMode } from "./modules/modes/store";
 import { exportHTML, exportPreview, exportMarkdown, exportPDF, exportStaticSite, exportArchive } from "./modules/export/store";
@@ -140,6 +140,25 @@ function registerCoreActions(): void {
     execute: () => { if (getActiveTab()) searchReplace("TODO", "FIXME").then(n => console.log(`Replaced in ${n} files`)); },
   });
   registerAction({
+    id: "keybindings.cheatsheet",
+    label: "Show Keybinding Cheat Sheet",
+    category: "Help",
+    execute: () => {
+      const all = getKeybindings();
+      console.log(all.map(k => `${k.keys.padEnd(16)} ${k.label}`).join("\n"));
+    },
+  });
+  registerAction({
+    id: "keybindings.conflicts",
+    label: "Detect Keybinding Conflicts",
+    category: "Help",
+    execute: () => {
+      const conflicts = getConflicts();
+      if (conflicts.length === 0) console.log("No conflicts detected");
+      else console.log(conflicts.join("\n"));
+    },
+  });
+  registerAction({
     id: "dashboard.goHome",
     label: "Go Home (Dashboard)",
     category: "Navigation",
@@ -209,7 +228,8 @@ function registerCoreActions(): void {
   });
   registerDefaultCommands();
   registerSettingsActions();
-  initDefaultBindings();
+  const ws = getWorkspaceState();
+  if (ws.rootPath) loadOverrides(ws.rootPath);
 
   const modes: WorkspaceMode[] = ["normal", "writing", "review", "git", "ai", "presentation", "distraction-free"];
   for (const m of modes) {
