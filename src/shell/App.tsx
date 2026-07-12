@@ -14,6 +14,8 @@ import { OutlinePanel } from "../components/OutlinePanel";
 import { Dashboard } from "../components/Dashboard";
 import { getGitState } from "../modules/git/detect";
 import { getCurrentDiff } from "../modules/git/diff-store";
+import { getConversation } from "../modules/ai/panel-store";
+import { AIPanel } from "../components/AIPanel";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -79,6 +81,7 @@ export function App() {
       bus.on("git:status-changed", () => setRev(n => n + 1)),
       bus.on("diff:show", () => { setShowDiff(true); setRev(n => n + 1); }),
       bus.on("diff:close", () => { setShowDiff(false); setRev(n => n + 1); }),
+      bus.on("ai:update", () => setRev(n => n + 1)),
     ];
     return () => unsubs.forEach(fn => fn());
   }, []);
@@ -95,6 +98,7 @@ export function App() {
         {editorText && (
           <OutlinePanel editorText={editorText} />
         )}
+        <AIPanel />
       </box>
       <box flexGrow={1} flexDirection="column">
         <box height={1} width="100%" flexDirection="row">

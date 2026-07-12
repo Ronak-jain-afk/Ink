@@ -15,6 +15,7 @@ type EventMap = {
   "preview:toggle": {};
   "diff:show": {};
   "diff:close": {};
+  "ai:update": {};
   "palette:open": {};
   "palette:close": {};
 };
