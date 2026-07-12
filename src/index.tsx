@@ -7,6 +7,7 @@ import { loadSession, saveSession } from "./modules/workspace/session";
 import { addRecentProject } from "./modules/workspace/recent";
 import { getWorkspaceState } from "./modules/workspace/workspace-store";
 import { detectTier } from "./modules/preview/tiers";
+import { toggleTheme } from "./modules/themes/store";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -56,6 +57,10 @@ async function main() {
   renderer.keyInput.on("keypress", (event) => {
     if (event.ctrl && event.shift && event.name === "p") {
       bus.emit("preview:toggle", {});
+    }
+    if (event.ctrl && event.shift && event.name === "t") {
+      toggleTheme();
+      renderer.requestRender();
     }
   });
 }

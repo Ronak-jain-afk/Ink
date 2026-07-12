@@ -8,6 +8,7 @@ import { detectFrontmatter } from "../modules/workspace/frontmatter";
 import { getSplitState, initSplit, type Pane } from "../modules/workspace/split";
 import { parseMarkdown } from "../modules/preview/parser";
 import { renderPreview } from "../modules/preview/renderer";
+import { getTheme } from "../modules/themes/store";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -66,15 +67,17 @@ export function App() {
       bus.on("workspace:opened", () => setRev(n => n + 1)),
       bus.on("session:restored", () => setRev(n => n + 1)),
       bus.on("preview:toggle", () => setShowPreview(p => !p)),
+      bus.on("theme:changed", () => setRev(n => n + 1)),
     ];
     return () => unsubs.forEach(fn => fn());
   }, []);
 
   const rootPane = splitState.root;
   const previewContent = editorText && showPreview ? renderPreview(parseMarkdown(editorText)) : null;
+  const theme = getTheme();
 
   return (
-    <box width="100%" height="100%" flexDirection="row">
+    <box width="100%" height="100%" flexDirection="row" backgroundColor={theme.bg}>
       <FileExplorer rev={rev} />
       <box flexGrow={1} flexDirection="column">
         <box height={1} width="100%" flexDirection="row">
