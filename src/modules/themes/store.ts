@@ -26,6 +26,11 @@ export function getTheme(): ThemeTokens {
   return currentTheme;
 }
 
+export function previewTheme(tokens: ThemeTokens): string {
+  const keys = Object.keys(tokens) as (keyof ThemeTokens)[];
+  return keys.map(k => `${k}: ${tokens[k]}`).join("\n");
+}
+
 export function getThemeMode(): ThemeMode {
   return currentMode;
 }

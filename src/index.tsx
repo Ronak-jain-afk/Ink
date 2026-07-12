@@ -11,7 +11,7 @@ import { getSplitState } from "./modules/workspace/split";
 import { createFile, createFolder, deleteFile, deleteFolder, renamePath } from "./modules/workspace/file-system";
 import { join } from "node:path";
 import { detectTier } from "./modules/preview/tiers";
-import { toggleTheme } from "./modules/themes/store";
+import { toggleTheme, getTheme, previewTheme } from "./modules/themes/store";
 import { searchHeadings, searchSymbols, regexSearch } from "./modules/search/advanced-search";
 import { searchReplace, buildIndex, isIndexing } from "./modules/search/content-search";
 import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen, setInlineInput } from "./modules/palette/store";
@@ -49,6 +49,12 @@ function registerCoreActions(): void {
     category: "View",
     keybinding: "Ctrl+Shift+P",
     execute: () => bus.emit("preview:toggle", {}),
+  });
+  registerAction({
+    id: "theme.preview",
+    label: "Preview Theme Tokens",
+    category: "Preferences",
+    execute: () => { console.log(previewTheme(getTheme())); },
   });
   registerAction({
     id: "theme.toggle",
