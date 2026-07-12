@@ -13,6 +13,7 @@ import { stageAll, unstageAll } from "./modules/git/staging";
 import { showActiveFileDiff } from "./modules/git/diff-store";
 import { commit as doGitCommit } from "./modules/git/commit";
 import { listBranches, switchBranch } from "./modules/git/branches";
+import { fetch as gitFetch, pull as gitPull, push as gitPush } from "./modules/git/remote";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -72,6 +73,24 @@ function registerCoreActions(): void {
       const branches = listBranches(ws.rootPath);
       console.log(branches.map(b => `${b.current ? "*" : " "} ${b.name}`).join("\n"));
     },
+  });
+  registerAction({
+    id: "git.fetch",
+    label: "Fetch",
+    category: "Git",
+    execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitFetch(ws.rootPath); },
+  });
+  registerAction({
+    id: "git.pull",
+    label: "Pull",
+    category: "Git",
+    execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPull(ws.rootPath); },
+  });
+  registerAction({
+    id: "git.push",
+    label: "Push",
+    category: "Git",
+    execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPush(ws.rootPath); },
   });
   registerAction({
     id: "git.quickCommit",
