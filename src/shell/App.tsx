@@ -12,6 +12,7 @@ import { getTheme } from "../modules/themes/store";
 import { PaletteOverlay } from "../components/PaletteOverlay";
 import { OutlinePanel } from "../components/OutlinePanel";
 import { Dashboard } from "../components/Dashboard";
+import { getGitState } from "../modules/git/detect";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -73,6 +74,7 @@ export function App() {
       bus.on("theme:changed", () => setRev(n => n + 1)),
       bus.on("palette:open", () => setRev(n => n + 1)),
       bus.on("palette:close", () => setRev(n => n + 1)),
+      bus.on("git:status-changed", () => setRev(n => n + 1)),
     ];
     return () => unsubs.forEach(fn => fn());
   }, []);
@@ -80,6 +82,7 @@ export function App() {
   const rootPane = splitState.root;
   const previewContent = editorText && showPreview ? renderPreview(parseMarkdown(editorText)) : null;
   const theme = getTheme();
+  const git = getGitState();
 
   return (
     <box width="100%" height="100%" flexDirection="row" backgroundColor={theme.bg}>
@@ -134,6 +137,9 @@ export function App() {
 
         <box height={1} width="100%" flexDirection="row">
           <text content={` ${showPreview ? "PREVIEW" : "NORMAL"} `} />
+          {git.isRepo && (
+            <text content={` ${git.branch}${git.dirty ? " ●" : ""} `} />
+          )}
           <box flexGrow={1} />
           {stats && (
             <text content={` ${stats.words}w ${stats.chars}c ${stats.readingTime}m `} />

@@ -4,6 +4,7 @@ import { bus } from "../../system/events";
 import { loadSettings } from "./settings";
 import { addRoot, removeRoot, clearRoots } from "./multiroot";
 import { loadThemeForWorkspace } from "../themes/store";
+import { detectGit } from "../git/detect";
 
 export interface FileNode {
   name: string;
@@ -52,6 +53,8 @@ async function buildTree(dirPath: string, showHidden: boolean): Promise<FileNode
 
 export async function openWorkspace(folderPath: string, append = false): Promise<void> {
   loadThemeForWorkspace(folderPath);
+  detectGit(folderPath);
+  bus.emit("git:status-changed", {});
   const settings = loadSettings(folderPath);
   const showHidden = settings.showHidden ?? false;
   const tree = await buildTree(folderPath, showHidden);
