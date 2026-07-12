@@ -16,6 +16,7 @@ import { listBranches, switchBranch } from "./modules/git/branches";
 import { fetch as gitFetch, pull as gitPull, push as gitPush } from "./modules/git/remote";
 import { getLog } from "./modules/git/log";
 import { startGitPolling } from "./modules/git/watch";
+import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -104,6 +105,18 @@ function registerCoreActions(): void {
     label: "Push",
     category: "Git",
     execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPush(ws.rootPath); },
+  });
+  registerAction({
+    id: "ai.acceptAllEdits",
+    label: "Accept All AI Edits",
+    category: "AI",
+    execute: () => { acceptAll(); bus.emit("ai:update", {}); },
+  });
+  registerAction({
+    id: "ai.rejectAllEdits",
+    label: "Reject All AI Edits",
+    category: "AI",
+    execute: () => { rejectAll(); bus.emit("ai:update", {}); },
   });
   registerAction({
     id: "git.quickCommit",
