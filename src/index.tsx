@@ -2,7 +2,17 @@ import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { App, openFileInEditor } from "./shell/App";
 import { pickAndOpenFolder } from "./components/FileExplorer";
-import { openTab } from "./modules/workspace/store";
+import { getTabs, getActiveTab, openTab } from "./modules/workspace/store";
+import { loadSession, saveSession } from "./modules/workspace/session";
+import { getWorkspaceState } from "./modules/workspace/workspace-store";
+import { bus } from "./system/events";
+
+function saveCurrentSession(): void {
+  const ws = getWorkspaceState();
+  if (ws.rootPath) {
+    saveSession(ws.rootPath, getTabs(), getActiveTab()?.filePath ?? null);
+  }
+}
 
 async function main() {
   const renderer = await createCliRenderer({
@@ -20,8 +30,22 @@ async function main() {
     renderer.requestRender();
   });
 
-  // Auto-open current folder
-  setTimeout(() => pickAndOpenFolder(), 100);
+  setTimeout(async () => {
+    await pickAndOpenFolder();
+    const ws = getWorkspaceState();
+    if (ws.rootPath) {
+      const session = loadSession(ws.rootPath);
+      if (session) {
+        for (const t of session.tabs) {
+          openTab(t.filePath);
+        }
+        bus.emit("session:restored", {});
+      }
+    }
+  }, 100);
+
+  bus.on("tab:opened", saveCurrentSession);
+  bus.on("tab:closed", saveCurrentSession);
 }
 
 main().catch((err) => {

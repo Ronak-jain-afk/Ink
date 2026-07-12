@@ -28,6 +28,7 @@ export function App() {
       bus.on("tab:opened", () => setRev(n => n + 1)),
       bus.on("tab:closed", () => setRev(n => n + 1)),
       bus.on("workspace:opened", () => setRev(n => n + 1)),
+      bus.on("session:restored", () => setRev(n => n + 1)),
     ];
     return () => unsubs.forEach(fn => fn());
   }, []);

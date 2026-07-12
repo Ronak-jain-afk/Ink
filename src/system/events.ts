@@ -6,6 +6,7 @@ type EventMap = {
   "file:saved": { filePath: string };
   "mode:changed": { mode: string };
   "workspace:opened": { rootPath: string };
+  "session:restored": {};
   "git:status-changed": {};
   "search:executed": { query: string };
   "focus:changed": { paneId: string | null };
