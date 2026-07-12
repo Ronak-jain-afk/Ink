@@ -12,7 +12,7 @@ import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
 import { searchHeadings, searchSymbols, regexSearch } from "./modules/search/advanced-search";
 import { searchReplace, buildIndex, isIndexing } from "./modules/search/content-search";
-import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen } from "./modules/palette/store";
+import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen, setInlineInput } from "./modules/palette/store";
 import { stageAll, unstageAll } from "./modules/git/staging";
 import { showActiveFileDiff } from "./modules/git/diff-store";
 import { commit as doGitCommit } from "./modules/git/commit";
@@ -154,9 +154,10 @@ function registerCoreActions(): void {
     execute: () => {
       const ws = getWorkspaceState();
       if (!ws.rootPath) return;
-      const name = "untitled.md";
-      const path = ws.rootPath + "/" + name;
-      createFile(path, "").then(() => refreshTree()).catch(() => {}); // ponytail: prompts deferred to 3.3
+      setInlineInput((name: string) => {
+        const path = ws.rootPath + "/" + (name || "untitled.md");
+        createFile(path, "").then(() => refreshTree()).catch(() => {});
+      });
     },
   });
   registerAction({
@@ -174,6 +175,7 @@ function registerCoreActions(): void {
     id: "file.delete",
     label: "Delete Current File",
     category: "File",
+    context: ["editor"],
     execute: () => {
       const tab = getActiveTab();
       if (!tab) return;
@@ -184,12 +186,15 @@ function registerCoreActions(): void {
     id: "file.rename",
     label: "Rename Current File",
     category: "File",
+    context: ["editor"],
     execute: () => {
       const tab = getActiveTab();
       if (!tab) return;
       const parts = tab.filePath.split("/");
       const dir = parts.slice(0, -1).join("/");
-      renamePath(tab.filePath, dir + "/renamed.md").catch(() => {}); // ponytail: prompts deferred to 3.3
+      setInlineInput((newName: string) => {
+        if (newName) renamePath(tab.filePath, dir + "/" + newName).then(() => refreshTree()).catch(() => {});
+      });
     },
   });
   registerDefaultCommands();

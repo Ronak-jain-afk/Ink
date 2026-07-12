@@ -1,10 +1,13 @@
 import { bus } from "../../system/events";
+import { getActiveTab } from "../workspace/store";
+import { getGitState } from "../git/detect";
 
 export interface PaletteAction {
   id: string;
   label: string;
   category: string;
   keybinding?: string;
+  context?: string[]; // contexts where this action is visible: "editor", "git", "no-file", "dashboard"
   execute: () => void;
 }
 
@@ -13,20 +16,42 @@ let currentQuery = "";
 let selectedIdx = 0;
 let isOpen = false;
 
+// ponytail: inline input for actions like rename/create
+let inlineInputFn: ((input: string) => void) | null = null;
+export function setInlineInput(fn: ((input: string) => void) | null): void {
+  inlineInputFn = fn;
+}
+export function getInlineInput(): ((input: string) => void) | null {
+  return inlineInputFn;
+}
+
 export function registerAction(action: PaletteAction): () => void {
   actions.push(action);
   return () => { actions = actions.filter(a => a.id !== action.id); };
 }
 
+function getActiveContexts(): string[] {
+  const ctx: string[] = [];
+  const tab = getActiveTab();
+  if (tab) ctx.push("editor");
+  else ctx.push("dashboard");
+  const git = getGitState();
+  if (git.isRepo) ctx.push("git");
+  return ctx;
+}
+
 export function getActions(): PaletteAction[] {
-  return actions;
+  const ctx = getActiveContexts();
+  return actions.filter(a => !a.context || a.context.some(c => ctx.includes(c)));
 }
 
 export function searchActions(query: string): PaletteAction[] {
   currentQuery = query;
   const q = query.toLowerCase();
+  const ctx = getActiveContexts();
   return actions
-    .filter(a => a.label.toLowerCase().includes(q) || a.category.toLowerCase().includes(q))
+    .filter(a => (!a.context || a.context.some(c => ctx.includes(c))) &&
+      (a.label.toLowerCase().includes(q) || a.category.toLowerCase().includes(q)))
     .sort((a, b) => {
       const aExact = a.label.toLowerCase() === q ? 0 : a.label.toLowerCase().startsWith(q) ? 1 : 2;
       const bExact = b.label.toLowerCase() === q ? 0 : b.label.toLowerCase().startsWith(q) ? 1 : 2;
@@ -38,11 +63,13 @@ export function openPalette(): void {
   isOpen = true;
   selectedIdx = 0;
   currentQuery = "";
+  inlineInputFn = null;
   bus.emit("palette:open", {});
 }
 
 export function closePalette(): void {
   isOpen = false;
+  inlineInputFn = null;
   bus.emit("palette:close", {});
 }
 
@@ -67,7 +94,12 @@ export function executeSelected(): void {
   const results = searchActions(currentQuery);
   const action = results[selectedIdx];
   if (action) {
-    closePalette();
-    action.execute();
+    if (inlineInputFn) {
+      inlineInputFn(currentQuery);
+      inlineInputFn = null;
+    } else {
+      closePalette();
+      action.execute();
+    }
   }
 }
