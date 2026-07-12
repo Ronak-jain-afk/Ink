@@ -4,6 +4,7 @@ import { App, openFileInEditor } from "./shell/App";
 import { pickAndOpenFolder } from "./components/FileExplorer";
 import { getTabs, getActiveTab, openTab } from "./modules/workspace/store";
 import { loadSession, saveSession } from "./modules/workspace/session";
+import { addRecentProject } from "./modules/workspace/recent";
 import { getWorkspaceState } from "./modules/workspace/workspace-store";
 import { bus } from "./system/events";
 
@@ -34,6 +35,8 @@ async function main() {
     await pickAndOpenFolder();
     const ws = getWorkspaceState();
     if (ws.rootPath) {
+      addRecentProject(ws.rootPath);
+      bus.emit("recent:updated", {});
       const session = loadSession(ws.rootPath);
       if (session) {
         for (const t of session.tabs) {
