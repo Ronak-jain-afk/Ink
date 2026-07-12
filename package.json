@@ -1,8 +1,8 @@
 {
   "name": "ink",
-  "module": "src/index.ts",
+  "module": "src/index.tsx",
   "scripts": {
-    "dev": "bun run src/index.ts",
+    "dev": "bun run src/index.tsx",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint"
   },
@@ -10,12 +10,14 @@
   "private": true,
   "devDependencies": {
     "@opentui/react": "^0.4.3",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/react": "^19.2.17"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "@opentui/core": "^0.4.3"
+    "@opentui/core": "^0.4.3",
+    "react": "^19.2.7"
   }
 }
