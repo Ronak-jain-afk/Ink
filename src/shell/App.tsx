@@ -4,6 +4,7 @@ import { bus } from "../system/events";
 import { FileExplorer } from "../components/FileExplorer";
 import { getWordStats } from "../modules/workspace/word-stats";
 import { getBreadcrumbs } from "../modules/workspace/breadcrumbs";
+import { detectFrontmatter } from "../modules/workspace/frontmatter";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -47,6 +48,9 @@ export function App() {
         {activeTab && (
           <box height={1} width="100%">
             <text content={` ${getBreadcrumbs(activeTab.filePath)}`} />
+            {editorText && detectFrontmatter(editorText).hasFrontmatter && (
+              <text content={" [FM]"} />
+            )}
           </box>
         )}
 
