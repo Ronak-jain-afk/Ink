@@ -14,6 +14,7 @@ import { showActiveFileDiff } from "./modules/git/diff-store";
 import { commit as doGitCommit } from "./modules/git/commit";
 import { listBranches, switchBranch } from "./modules/git/branches";
 import { fetch as gitFetch, pull as gitPull, push as gitPush } from "./modules/git/remote";
+import { getLog } from "./modules/git/log";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -62,6 +63,17 @@ function registerCoreActions(): void {
     label: "Show File Diff",
     category: "Git",
     execute: () => { showActiveFileDiff(); bus.emit("diff:show", {}); },
+  });
+  registerAction({
+    id: "git.showLog",
+    label: "Show Commit History",
+    category: "Git",
+    execute: () => {
+      const ws = getWorkspaceState();
+      if (!ws.rootPath) return;
+      const log = getLog(ws.rootPath, 10);
+      console.log(log.map(c => `${c.hash.slice(0, 7)} ${c.date} ${c.author}: ${c.message}`).join("\n"));
+    },
   });
   registerAction({
     id: "git.listBranches",
