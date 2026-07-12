@@ -18,6 +18,7 @@ import { getLog } from "./modules/git/log";
 import { startGitPolling } from "./modules/git/watch";
 import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review";
 import { registerDefaultCommands, listSlashCommands, executeSlashCommand } from "./modules/ai/slash";
+import { rewriteSelection, summarizeSelection, explainSelection, translateSelection } from "./modules/ai/selection-actions";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -108,6 +109,11 @@ function registerCoreActions(): void {
     execute: () => { const ws = getWorkspaceState(); if (ws.rootPath) gitPush(ws.rootPath); },
   });
   registerDefaultCommands();
+
+  registerAction({ id: "ai.rewrite", label: "Rewrite Selection", category: "AI", execute: () => rewriteSelection() });
+  registerAction({ id: "ai.summarize", label: "Summarize Selection", category: "AI", execute: () => summarizeSelection() });
+  registerAction({ id: "ai.explain", label: "Explain Selection", category: "AI", execute: () => explainSelection() });
+  registerAction({ id: "ai.translate", label: "Translate Selection", category: "AI", execute: () => translateSelection() });
 
   // Register slash commands as palette actions
   for (const cmd of listSlashCommands()) {
