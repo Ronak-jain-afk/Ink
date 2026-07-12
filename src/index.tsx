@@ -11,6 +11,7 @@ import { toggleTheme } from "./modules/themes/store";
 import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen } from "./modules/palette/store";
 import { stageAll, unstageAll } from "./modules/git/staging";
 import { showActiveFileDiff } from "./modules/git/diff-store";
+import { commit as doGitCommit } from "./modules/git/commit";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -59,6 +60,15 @@ function registerCoreActions(): void {
     label: "Show File Diff",
     category: "Git",
     execute: () => { showActiveFileDiff(); bus.emit("diff:show", {}); },
+  });
+  registerAction({
+    id: "git.quickCommit",
+    label: "Quick Commit (auto message)",
+    category: "Git",
+    execute: () => {
+      const ws = getWorkspaceState();
+      if (ws.rootPath) doGitCommit(ws.rootPath);
+    },
   });
 }
 
