@@ -5,10 +5,41 @@ import { FileExplorer } from "../components/FileExplorer";
 import { getWordStats } from "../modules/workspace/word-stats";
 import { getBreadcrumbs } from "../modules/workspace/breadcrumbs";
 import { detectFrontmatter } from "../modules/workspace/frontmatter";
+import { getSplitState, initSplit, type Pane } from "../modules/workspace/split";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
 let setEditorTextExternal: ((t: string) => void) | null = null;
+
+function hasSplits(pane: Pane | null): boolean {
+  if (!pane) return false;
+  return (pane.children?.length ?? 0) > 0;
+}
+
+function renderSplitPanes(pane: Pane): any {
+  const fd = pane.direction === "vertical" ? "column" : "row";
+  return (
+    <box key={pane.id} flexGrow={1} flexDirection={fd}>
+      {pane.children?.map(child => {
+        if (child.children && child.children.length > 0) {
+          return renderSplitPanes(child);
+        }
+        return <PaneEditor key={child.id} tabGroupId={child.tabGroupId} />;
+      })}
+    </box>
+  );
+}
+
+function PaneEditor({ tabGroupId }: { tabGroupId: string }) {
+  return (
+    <box flexGrow={1} flexDirection="column">
+      <box height={1} width="100%" flexDirection="row">
+        <text content={` [${tabGroupId.slice(0, 6)}]`} />
+      </box>
+      <textarea flexGrow={1} wrapMode="char" />
+    </box>
+  );
+}
 
 export function App() {
   const [rev, setRev] = useState(0);
@@ -17,8 +48,10 @@ export function App() {
   const activeTab = getActiveTab();
   const hasEditor = tabs.length > 0;
   const stats = editorText ? getWordStats(editorText) : null;
+  const splitState = getSplitState();
 
   useEffect(() => {
+    if (!splitState.root) initSplit();
     setEditorTextExternal = setEditorText;
     return () => { setEditorTextExternal = null; };
   }, []);
@@ -32,6 +65,8 @@ export function App() {
     ];
     return () => unsubs.forEach(fn => fn());
   }, []);
+
+  const rootPane = splitState.root;
 
   return (
     <box width="100%" height="100%" flexDirection="row">
@@ -55,7 +90,9 @@ export function App() {
           </box>
         )}
 
-        {hasEditor ? (
+        {hasEditor && rootPane && hasSplits(rootPane) ? (
+          renderSplitPanes(rootPane)
+        ) : hasEditor ? (
           <textarea
             flexGrow={1}
             initialValue={editorText}
