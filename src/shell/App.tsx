@@ -11,6 +11,7 @@ import { renderPreview } from "../modules/preview/renderer";
 import { getTheme } from "../modules/themes/store";
 import { PaletteOverlay } from "../components/PaletteOverlay";
 import { OutlinePanel } from "../components/OutlinePanel";
+import { Dashboard } from "../components/Dashboard";
 import { useState, useEffect } from "react";
 
 let editorRef: any = null;
@@ -128,9 +129,7 @@ export function App() {
             )}
           </box>
         ) : (
-          <box flexGrow={1} flexDirection="column" alignItems="center" justifyContent="center">
-            <text content={" Ink — Markdown Workspace\n\n Open a folder to get started.\n Press Ctrl+P to open the command palette."} />
-          </box>
+          <Dashboard />
         )}
 
         <box height={1} width="100%" flexDirection="row">
