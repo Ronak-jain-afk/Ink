@@ -76,3 +76,13 @@ export function getRelativePath(absPath: string): string {
   if (!state.rootPath) return absPath;
   return relative(state.rootPath, absPath);
 }
+
+export function getAllFiles(): { path: string; name: string }[] {
+  const result: { path: string; name: string }[] = [];
+  function walk(node: FileNode): void {
+    if (!node.isDirectory) result.push({ path: node.path, name: node.name });
+    for (const child of node.children ?? []) walk(child);
+  }
+  if (state.tree) walk(state.tree);
+  return result;
+}
