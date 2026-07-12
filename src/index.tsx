@@ -11,6 +11,7 @@ import { createFile, createFolder, deleteFile, deleteFolder, renamePath } from "
 import { detectTier } from "./modules/preview/tiers";
 import { toggleTheme } from "./modules/themes/store";
 import { searchHeadings, searchSymbols, regexSearch } from "./modules/search/advanced-search";
+import { searchReplace, buildIndex, isIndexing } from "./modules/search/content-search";
 import { registerAction, openPalette, closePalette, executeSelected, selectNext, selectPrev, isPaletteOpen } from "./modules/palette/store";
 import { stageAll, unstageAll } from "./modules/git/staging";
 import { showActiveFileDiff } from "./modules/git/diff-store";
@@ -127,6 +128,18 @@ function registerCoreActions(): void {
     label: "Search Symbols (frontmatter/tags)",
     category: "Search",
     execute: () => { searchSymbols("").then(r => console.log(r.map(s => `[${s.type}] ${s.name} — ${s.filePath}:${s.line}`).join("\n"))); },
+  });
+  registerAction({
+    id: "search.replace",
+    label: "Search & Replace",
+    category: "Search",
+    execute: () => { if (getActiveTab()) searchReplace("TODO", "FIXME").then(n => console.log(`Replaced in ${n} files`)); },
+  });
+  registerAction({
+    id: "search.buildIndex",
+    label: "Build Search Index",
+    category: "Search",
+    execute: () => { if (!isIndexing()) buildIndex().then(() => console.log("Index built")); },
   });
   registerAction({
     id: "search.regex",
