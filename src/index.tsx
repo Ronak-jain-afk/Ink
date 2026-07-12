@@ -19,6 +19,7 @@ import { startGitPolling } from "./modules/git/watch";
 import { acceptAll, rejectAll, getPendingEdits } from "./modules/ai/diff-review";
 import { registerDefaultCommands, listSlashCommands, executeSlashCommand } from "./modules/ai/slash";
 import { rewriteSelection, summarizeSelection, explainSelection, translateSelection } from "./modules/ai/selection-actions";
+import { cancelCurrentRequest } from "./modules/ai/cancellation";
 import { bus } from "./system/events";
 
 function saveCurrentSession(): void {
@@ -110,6 +111,7 @@ function registerCoreActions(): void {
   });
   registerDefaultCommands();
 
+  registerAction({ id: "ai.cancel", label: "Cancel AI Request", category: "AI", execute: () => cancelCurrentRequest() });
   registerAction({ id: "ai.rewrite", label: "Rewrite Selection", category: "AI", execute: () => rewriteSelection() });
   registerAction({ id: "ai.summarize", label: "Summarize Selection", category: "AI", execute: () => summarizeSelection() });
   registerAction({ id: "ai.explain", label: "Explain Selection", category: "AI", execute: () => explainSelection() });
